@@ -6,7 +6,8 @@ class Beats extends Component {
     static propTypes = {
         beatCount: React.PropTypes.number,
         running: React.PropTypes.bool.isRequired,
-        bpm: React.PropTypes.number.isRequired
+        bpm: React.PropTypes.number.isRequired,
+        audio: React.PropTypes.object.isRequired
     };
 
     static defaultProps = {
@@ -19,11 +20,13 @@ class Beats extends Component {
     };
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.running) {
+        if (nextProps.running && !isNaN(nextProps.bpm)) {
             if (nextProps.bpm !== this.props.bpm) {
                 this.stop();
             }
             this.start(nextProps.bpm);
+        } else if (nextProps.running) {
+            this.stop();
         } else {
             this.stop();
             this.setState({activeBeat: -1});
@@ -41,8 +44,10 @@ class Beats extends Component {
 
     nextBeat = () => {
         const {activeBeat} = this.state;
+        const {audio, beatCount} = this.props;
+        audio.playBeat();
         this.setState({
-            activeBeat: (activeBeat + 1 <= this.props.beatCount) ? (activeBeat) + 1 : 0
+            activeBeat: (activeBeat < beatCount - 1) ? (activeBeat + 1) : 0
         })
     };
 
